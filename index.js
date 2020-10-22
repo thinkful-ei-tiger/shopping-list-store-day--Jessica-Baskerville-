@@ -16,9 +16,15 @@ const generateItemElement = function (item) {
     `;
   }
 
+  let edit = '';
+  if(item.editing) {
+    itemTitle = '';
+    edit = `<label for ="edit">Edit</label>
+    <input type="text" id="edit" name="edit" value="${item.name}">`;
+  }
   return `
     <li class='js-item-element' data-item-id='${item.id}'>
-      ${itemTitle}
+      ${itemTitle}${edit}
       <div class='shopping-item-controls'>
         <button class='shopping-item-toggle js-item-toggle'>
           <span class='button-label'>check</span>
@@ -26,6 +32,8 @@ const generateItemElement = function (item) {
         <button class='shopping-item-delete js-item-delete'>
           <span class='button-label'>delete</span>
         </button>
+        </button>
+        ${item.editing ? '<button id="submit">submit</button>' : '<button id="edit">edit</button>'}
       </div>
     </li>`;
 };
@@ -95,6 +103,17 @@ const getItemIdFromElement = function (item) {
     .data('item-id');
 };
 
+const handleEditName = function(id) {
+  const foundItem =store.items.find(item => item.id === id);
+  foundItem.editing = true;
+};
+
+const handleSubmitName = function(id) {
+  const foundItem = store.items.find(item => item.id === id);
+  let val = $('#edit').val();
+  foundItem.name = val;
+  foundItem.editing = false;
+}
 /**
  * Responsible for deleting a list item.
  * @param {string} id 
@@ -154,11 +173,20 @@ const handleToggleFilterClick = function () {
  * "check" and "delete" buttons for individual 
  * shopping list items.
  */
+const handleEditItemClicked = function() {
+  $('.js-shopping-list').on('click', '#edit', function(event) {
+    const id = getItemIdFromElement(event.currentTarget);
+    handleEditName(id);
+    render();
+  });
+};
+
 const handleShoppingList = function () {
   render();
   handleNewItemSubmit();
   handleItemCheckClicked();
   handleDeleteItemClicked();
+  handleEditItemClicked();
   handleToggleFilterClick();
 };
 
